@@ -9,7 +9,8 @@ data class Vehiculos(
     @PrimaryKey
     val matricula:Int = 0,
     val numMultas:Int = 0,
-    val sumaMultas:Double = 0.0
+    val sumaMultas:Double = 0.0,
+    val velocidad:Double = 0.0
 )
 
 @Entity(tableName = "tSancion")

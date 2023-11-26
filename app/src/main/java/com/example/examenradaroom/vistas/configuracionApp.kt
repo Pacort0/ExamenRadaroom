@@ -1,5 +1,7 @@
 package com.example.examenradaroom.vistas
 
+import android.content.Context
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -22,7 +24,7 @@ import com.example.examenradaroom.database.configuracion
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun configuracionApp(navController: NavHostController) {
+fun configuracionApp(navController: NavHostController, context: Context) {
     var limiteVelocidad by remember { mutableStateOf("") }
     var multa by remember{ mutableStateOf("") }
     var numVehiculos by remember{ mutableStateOf("") }
@@ -46,8 +48,12 @@ fun configuracionApp(navController: NavHostController) {
         )}) {
             Text(text = "Guardar")
         }
-        Button(onClick = {
-            navController.navigate("listaVehiculos")}) {
+        Button(onClick = {if (!campoVacio(limiteVelocidad, multa, numVehiculos)){
+                navController.navigate("listaVehiculos")
+            } else {
+                Toast.makeText(context, "Los campos deben estar rellenos", Toast.LENGTH_SHORT).show()
+        }
+            }) {
            Text(text = "Lista de vehículos")
         }
     }
@@ -57,5 +63,8 @@ fun guardarConfiguracion(limiteVelocidad:String, multa:String, numVehiculos:Stri
     configuracion.limite = limiteVelocidad.toFloat()
     configuracion.multa = multa.toDouble()
     configuracion.numVeh = numVehiculos.toInt()
+}
 
+fun campoVacio(limiteVelocidad:String, multa:String, numVehiculos:String):Boolean{
+    return limiteVelocidad.isNullOrEmpty() && multa.isNullOrEmpty() && numVehiculos.isNullOrEmpty()
 }

@@ -28,7 +28,7 @@ class MainActivity : ComponentActivity() {
                 val database = RadarDatabaseVM(context.applicationContext as Application).room
                 NavHost(navController = navController, startDestination = "configuracionApp"){
                     composable(route="configuracionApp"){
-                        configuracionApp(navController)
+                        configuracionApp(navController, context)
                     }
                     composable(route = "detallesVehiculosMultados"){
                         detallesVehiculosMultados(navController, database.sancionDao(), context)

@@ -1,6 +1,7 @@
 package com.example.examenradaroom.vistas
 
 import android.content.Context
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -27,46 +28,58 @@ import kotlin.random.Random
 
 @Composable
 fun listaVehiculos(navController: NavHostController, vehiculoDao: vehiculoDao, context: Context) {
-    val numVehiculos = configuracion.numVeh
-    var vehiculoActual = 1
-    val vehiculos:List<Vehiculos> = runBlocking {
+    var vehiculoActual = 0
+    val vehiculos: List<Vehiculos> = runBlocking {
         vehiculoDao.getAllVehiculos()
     }
     Column(modifier = Modifier.fillMaxSize()) {
-        Row (verticalAlignment = Alignment.Top, modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center){
+        Row(
+            verticalAlignment = Alignment.Top,
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center
+        ) {
             Text(text = "Lista vehículos", fontSize = 40.sp)
         }
-        LazyColumn {
-            items(1){
-                while (vehiculoActual <= numVehiculos){
-                    var vehiculo = vehiculos[vehiculoActual-1]
-                    val velocidad = velocidadRandom()
-                    Column(
-                        modifier = Modifier
-                            .padding(16.dp, 0.dp, 0.dp, 0.dp)
-                    ) {
-                        if(configuracion.limite >= velocidad){
-                            Text(text = "Vehiculo: $vehiculoActual")
-                            Text(text = "Velocidad: $velocidad")
-                        } else {
-                            Text(text = "Vehiculo: $vehiculoActual")
-                            Text(text = "Matricula: ${vehiculo.matricula}")
-                            Text(text = "Velocidad: $velocidad")
-                            Toast.makeText(context, "Matricula: ${vehiculo.matricula}, velocidad: $velocidad", Toast.LENGTH_SHORT).show()
+        if (vehiculos.isEmpty()) {
+            Button(onClick = {
+                crudVehiculo.createVehiculo(vehiculoDao)
+                navController.navigate("listaVehiculos")
+            }) {
+                Text(text = "Pasa el tiempo")
+            }
+        } else {
+            LazyColumn {
+                items(1) {
+                    while (vehiculoActual < vehiculos.size && vehiculoActual<configuracion.numVeh){
+                        var vehiculo = vehiculos[vehiculoActual]
+                        Column {
+                            Text(text = "Vehiculo: ${vehiculoActual + 1}")
+                            if (vehiculo.velocidad > configuracion.limite){
+                                Text(text = "Matrícula: ${vehiculo.matricula}")
+                                Text(text = "Velocidad: ${vehiculo.velocidad}")
+                            } else {
+                                Text(text = "Velocidad: ${vehiculo.velocidad}")
+                            }
+                            vehiculoActual++
                         }
-                        vehiculoActual++
                     }
                 }
             }
-        }
-        Button(onClick = {crudVehiculo.createVehiculo(vehiculoDao)}) {
-            Text(text = "Pasa el tiempo")
+            Button(onClick = {
+                if (vehiculoActual < configuracion.numVeh) {
+                    crudVehiculo.createVehiculo(vehiculoDao)
+                    navController.navigate("listaVehiculos")
+                    Log.i("prueba", "He entrado en el if, vehiculo actual: $vehiculoActual, Numero de vehículos: ${configuracion.numVeh}")
+                } else {
+                    Toast.makeText(context, "No van a pasar más coches", Toast.LENGTH_SHORT).show()
+                    Log.i("prueba", "He entrado en el else, vehiculo actual: $vehiculoActual, Numero de vehículos: ${configuracion.numVeh}")
+                }
+            }) {
+                Text(text = "Pasa el tiempo")
+            }
         }
     }
 }
 
-fun velocidadRandom():Double{
-    var velocidad = Random.nextDouble((configuracion.limite/2).toDouble(), (configuracion.limite*1.5))
-    return velocidad
-}
+
 
